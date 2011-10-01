@@ -8481,7 +8481,7 @@ S_new_constant(pTHX_ const char *s, STRLEN len, const char *key, STRLEN keylen,
 	       SV *sv, SV *pv, const char *type, STRLEN typelen)
 {
     dVAR; dSP;
-    HV * const table = GvHV(PL_hintgv);		 /* ^H */
+    HV * table = GvHV(PL_hintgv);		 /* ^H */
     SV *res;
     SV **cvp;
     SV *cv, *typesv;
@@ -8493,39 +8493,47 @@ S_new_constant(pTHX_ const char *s, STRLEN len, const char *key, STRLEN keylen,
     if (PL_error_count > 0 && strEQ(key,"charnames"))
 	return &PL_sv_undef;
 
-    if (!table || !(PL_hints & HINT_LOCALIZE_HH)) {
+    if (!table
+	|| !(PL_hints & HINT_LOCALIZE_HH)
+	|| ! (cvp = hv_fetch(table, key, keylen, FALSE))
+	|| ! SvOK(*cvp))
+    {
 	SV *msg;
 	
-	why2 = (const char *)
-	    (strEQ(key,"charnames")
-	     ? "(possibly a missing \"use charnames ...\")"
-	     : "");
-	msg = Perl_newSVpvf(aTHX_ "Constant(%s) unknown: %s",
-			    (type ? type: "undef"), why2);
-
-	/* This is convoluted and evil ("goto considered harmful")
-	 * but I do not understand the intricacies of all the different
-	 * failure modes of %^H in here.  The goal here is to make
-	 * the most probable error message user-friendly. --jhi */
-
-	goto msgdone;
-
+	if (strEQ(key,"charnames")) {
+	    SV* version = newSVnv(1.22); /* When :loose was added */
+	    Perl_load_module(aTHX_ 0, newSVpvs_share("charnames"),
+				      version,
+				      newSVpvs_flags(":loose", SVs_TEMP),
+				      newSVpvs_flags(":short", SVs_TEMP),
+				      NULL);
+	    SvREFCNT_dec(version);
+	    table = GvHV(PL_hintgv);
+	    if (table
+		&& (PL_hints & HINT_LOCALIZE_HH)
+		&& (cvp = hv_fetch(table, key, keylen, FALSE))
+		&& SvOK(*cvp))
+	    {
+		goto now_ok;
+	    }
+	}
+	if (!table || !(PL_hints & HINT_LOCALIZE_HH)) {
+	    msg = Perl_newSVpvf(aTHX_
+			    "Constant(%s) unknown", (type ? type: "undef"));
+	}
+	else {
+	why1 = "$^H{";
+	why2 = key;
+	why3 = "} is not defined";
     report:
 	msg = Perl_newSVpvf(aTHX_ "Constant(%s): %s%s%s",
 			    (type ? type: "undef"), why1, why2, why3);
-    msgdone:
+	}
 	yyerror(SvPVX_const(msg));
  	SvREFCNT_dec(msg);
   	return sv;
     }
-
-    cvp = hv_fetch(table, key, keylen, FALSE);
-    if (!cvp || !SvOK(*cvp)) {
-	why1 = "$^H{";
-	why2 = key;
-	why3 = "} is not defined";
-	goto report;
-    }
+now_ok:
     sv_2mortal(sv);			/* Parent created it permanently */
     cv = *cvp;
     if (!pv && s)
