@@ -2,9 +2,10 @@ package charnames;
 use strict;
 use warnings;
 use File::Spec;
-our $VERSION = '1.23';
+our $VERSION = '1.24';
 
 use bytes ();          # for $bytes::hint_bits
+use re "/aa";          # Everything in here should be ASCII
 
 # Translate between Unicode character names and their code points.
 #
