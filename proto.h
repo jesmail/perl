@@ -6242,6 +6242,14 @@ PERL_STATIC_INLINE UV*	S_get_invlist_zero_addr(pTHX_ SV* invlist)
 #define PERL_ARGS_ASSERT_GET_INVLIST_ZERO_ADDR	\
 	assert(invlist)
 
+STATIC regnode*	S_insert_and_parse(pTHX_ struct RExC_state_t* pRExC_state, SV* insertion, char *new_pos, I32 *flagp, const U32 depth)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_4);
+#define PERL_ARGS_ASSERT_INSERT_AND_PARSE	\
+	assert(pRExC_state); assert(insertion); assert(new_pos); assert(flagp)
+
 PERL_STATIC_INLINE UV*	S_invlist_array(pTHX_ SV* const invlist)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);

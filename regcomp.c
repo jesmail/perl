@@ -8212,6 +8212,37 @@ S_reg_namedseq(pTHX_ RExC_state_t *pRExC_state, UV *valuep, I32 *flagp, U32 dept
     return ret;
 }
 
+STATIC regnode *
+S_insert_and_parse(pTHX_ RExC_state_t *pRExC_state, SV* insertion, char *new_pos, I32 *flagp, U32 const depth)
+{
+    /* Insert the string from the SV 'insertion' into the input parse, and
+     * parse it.  Afterwards change the input position to 'new_pos', thus
+     * consuming the characters between the original RExC_parse and it.  The
+     * string must be of the form '(?:..)' */
+
+    char *orig_end = RExC_end;
+    STRLEN len;
+    regnode *ret = NULL;
+
+    PERL_ARGS_ASSERT_INSERT_AND_PARSE;
+
+    assert(new_pos >= RExC_parse);
+
+    RExC_parse = SvPV(insertion, len);
+    RExC_end = RExC_parse + len;
+
+    assert(*RExC_parse == '(');
+    RExC_parse++;
+    assert(len > 3 && *RExC_parse == '?' && *(RExC_parse + 1) == ':');
+
+    ret = reg(pRExC_state, 1 /* Seen '(' */, flagp, depth+1);
+
+    RExC_parse = new_pos;
+    RExC_end = orig_end;
+
+    return ret;
+}
+
 
 /*
  * reg_recode
@@ -8599,8 +8630,11 @@ tryagain:
 	    *flagp |= HASWIDTH|SIMPLE;
 	    goto finish_meta_pat;
 	case 'R':
-	    ret = reg_node(pRExC_state, LNBREAK);
-	    *flagp |= HASWIDTH|SIMPLE;
+	    ret = insert_and_parse(pRExC_state,
+		                   sv_2mortal(newSVpvs("(?:\\r\\n|\\v)")),
+				   RExC_parse,
+				   flagp,
+				   depth);
 	    goto finish_meta_pat;
 	case 'h':
 	    ret = reg_node(pRExC_state, HORIZWS);

@@ -908,6 +908,7 @@
 #define get_invlist_iter_addr(a)	S_get_invlist_iter_addr(aTHX_ a)
 #define get_invlist_len_addr(a)	S_get_invlist_len_addr(aTHX_ a)
 #define get_invlist_zero_addr(a)	S_get_invlist_zero_addr(aTHX_ a)
+#define insert_and_parse(a,b,c,d,e)	S_insert_and_parse(aTHX_ a,b,c,d,e)
 #define invlist_array(a)	S_invlist_array(aTHX_ a)
 #define invlist_clone(a)	S_invlist_clone(aTHX_ a)
 #define invlist_extend(a,b)	S_invlist_extend(aTHX_ a,b)

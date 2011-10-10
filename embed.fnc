@@ -1017,6 +1017,7 @@ Ap	|SV*	|regclass_swash	|NULLOK const regexp *prog \
 EMi	|U8	|set_regclass_bit|NN struct RExC_state_t* pRExC_state|NN regnode* node|const U8 value|NN SV** invlist_ptr|NN AV** alternate_ptr
 EMs	|U8	|set_regclass_bit_fold|NN struct RExC_state_t *pRExC_state|NN regnode* node|const U8 value|NN SV** invlist_ptr|NN AV** alternate_ptr
 EMs	|void	|add_alternate	|NN AV** alternate_ptr|NN U8* string|STRLEN len
+EMs	|regnode*|insert_and_parse|NN struct RExC_state_t* pRExC_state|NN SV* insertion|NN char *new_pos|NN I32 *flagp|const U32 depth
 #endif
 Ap	|I32	|pregexec	|NN REGEXP * const prog|NN char* stringarg \
 				|NN char* strend|NN char* strbeg|I32 minend \
