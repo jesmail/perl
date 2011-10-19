@@ -513,7 +513,8 @@ get_regex_charset_name(const U32 flags, STRLEN* const lenp)
 #  define ReREFCNT_inc(re)						\
     ({									\
 	/* This is here to generate a casting warning if incorrect.  */	\
-	REGEXP *const _rerefcnt_inc = (re);				\
+	REGEXP *const _rerefcnt_inc __attribute__unused__;              \
+	_rerefcnt_inc = (re);				                \
 	assert(SvTYPE(_rerefcnt_inc) == SVt_REGEXP);			\
 	SvREFCNT_inc(_rerefcnt_inc);					\
 	_rerefcnt_inc;							\
